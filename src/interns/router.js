@@ -406,7 +406,7 @@ router.post("/admin/home/search", async (req, res) => {
    *       200:
    *         description: 'Intern found or not'
    *       400:
-   *         description: 'Bad Request'
+   *         description: 'Bad Request '
    */
 
   const foundAdmin = await searchAdmin(req.session.email);
