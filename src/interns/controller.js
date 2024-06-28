@@ -15,6 +15,7 @@ const cookieParser = require("cookie-parser");
 const moment = require("moment");
 const bodyParser = require("body-parser");
 const router = Router();
+const secretKey = "ValerieOreNkechi";
 
 router.use(express.json());
 router.use(cookieParser("Logbook Backend"));
@@ -35,7 +36,15 @@ const internLogin = async (req, res) => {
       }
       req.session.foundIntern = foundIntern;
 
-      return handleResponse(res, 200, 'Intern log in successful');
+      const token = jwt.sign(
+        { id: foundIntern._id, role: foundIntern.role },
+        secretKey,
+        {
+          expiresIn: 86400,
+        }
+      );
+
+      return handleResponse(res, 200, token, "Intern log in successful");
     } else if (foundAdmin) {
       const passwordCheck = await comparePassword(
         password,
@@ -47,7 +56,15 @@ const internLogin = async (req, res) => {
       }
       req.session.foundAdmin = foundAdmin;
 
-      return handleResponse(res, 200, 'Admin log in successful');
+      const token = jwt.sign(
+        { id: foundAdmin._id, role: foundAdmin.role },
+        secretKey,
+        {
+          expiresIn: 86400,
+        }
+      );
+
+      return handleResponse(res, 200, token, "Admin log in successful");
     } else {
       return handleResponse(res, 400, "User does not exist");
     }
@@ -55,7 +72,6 @@ const internLogin = async (req, res) => {
     console.log(error);
   }
 };
-
 
 const internSignup = async (req, res) => {
   try {
@@ -131,10 +147,10 @@ const internHomePage = async (req, res) => {
     });
 
     if (foundWeek.length === 0) {
-      return handleResponse(res, 200, "No previous report");
+      return handleResponse(res, 200, foundIntern, "No previous report");
     }
 
-    return handleResponse(res, 200, foundWeek);
+    return handleResponse(res, 200, foundIntern, foundWeek);
   } catch (error) {
     console.log(error);
   }
@@ -206,7 +222,7 @@ const internReportUpload = async (req, res) => {
       return handleResponse(res, 400, "Couldn't save information");
     }
 
-    return handleResponse(res, 200, 'Report Upload Successful');
+    return handleResponse(res, 200, "Report Upload Successful");
   } catch (error) {
     console.log(error);
   }
@@ -293,34 +309,34 @@ const internPreviewSearch = async (req, res) => {
 const internChangePassword = async (req, res) => {
   try {
     const { email, oldPassword, newPassword, confirmPassword } = req.body;
- 
+
     const foundIntern = await searchIntern(email);
- 
+
     if (!email) {
       return handleResponse(res, 400, "You have to log in");
     }
- 
+
     if (!foundIntern) {
       return handleResponse(res, 400, "You dont have access to this page");
     }
- 
+
     if (!oldPassword || !newPassword || !confirmPassword) {
       return handleResponse(res, 400, "Please fill all fields");
     }
- 
+
     const passwordCheck = await comparePassword(
       oldPassword,
       foundIntern.password
     );
- 
+
     if (!passwordCheck) {
       return handleResponse(res, 400, "Wrong password");
     }
- 
+
     if (newPassword !== confirmPassword) {
       return handleResponse(res, 400, "Password not confirmed");
     }
- 
+
     if (oldPassword === newPassword) {
       return handleResponse(
         res,
@@ -328,16 +344,16 @@ const internChangePassword = async (req, res) => {
         "Old password can not be the same as new password"
       );
     }
- 
+
     const changedPassword = await internsModel.findOneAndUpdate(
       { email },
       { password: await hashPassword(newPassword), updatedAt: Date.now() }
     );
- 
+
     if (!changedPassword) {
       return handleResponse(res, 400, "Could not change password");
     }
- 
+
     return handleResponse(res, 200, "Password change successful");
   } catch (error) {
     console.log(error);
@@ -388,7 +404,7 @@ const adminSignUp = async (req, res) => {
       return handleResponse(res, 400, "Couldn't save information");
     }
 
-    return handleResponse(res, 200, 'Admin sign up successful');
+    return handleResponse(res, 200, "Admin sign up successful");
   } catch (error) {
     console.log(error);
   }

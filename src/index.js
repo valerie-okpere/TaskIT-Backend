@@ -6,6 +6,7 @@ const router = require("../src/router/index");
 const { handleResponse } = require("../src/utils/helperFunctions");
 const session = require("express-session");
 const swaggerDocs = require("../src/utils/swagger");
+const cors = require("cors");
 
 const PORT = process.env.PORT || 5000;
 const app = express();
@@ -23,6 +24,11 @@ app.use(
     },
   })
 );
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 app.use(router);
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set("view engine", "hbs");
@@ -35,5 +41,5 @@ app.get("/", (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Listening on Port: ${PORT}`);
-  swaggerDocs(app,PORT);
+  swaggerDocs(app, PORT);
 });

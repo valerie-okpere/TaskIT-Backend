@@ -9,52 +9,51 @@ mongoose
   .catch((error) => {
     console.log(error);
   });
- 
- 
+
 const signUpSchema = mongoose.Schema({
-/**
- * @openapi
- * components:
- *   schemas:
- *     SignUpInput:
- *       type: object
- *       required:
- *         - firstName
- *         - lastName
- *         - email
- *         - password
- *         - confirmPassword
- *         - duration
- *       properties:
- *         firstName:
- *           type: string
- *           default: ""
- *           description: "First name of the user"
- *         lastName:
- *           type: string
- *           default: ""
- *           description: "Last name of the user"
- *         email:
- *           type: string
- *           format: email
- *           default: ""
- *           description: "Email address of the user"
- *         password:
- *           type: string
- *           format: password
- *           default: ""
- *           description: "Password for the user account"
- *         confirmPassword:
- *           type: string
- *           format: password
- *           default: ""
- *           description: "Password confirmation"
- *         duration:
- *           type: string
- *           default: ""
- *           description: "Duration of the internship or program"
- */
-  
+  /**
+   * @openapi
+   * components:
+   *   schemas:
+   *     SignUpInput:
+   *       type: object
+   *       required:
+   *         - firstName
+   *         - lastName
+   *         - email
+   *         - password
+   *         - confirmPassword
+   *         - duration
+   *       properties:
+   *         firstName:
+   *           type: string
+   *           default: ""
+   *           description: "First name of the user"
+   *         lastName:
+   *           type: string
+   *           default: ""
+   *           description: "Last name of the user"
+   *         email:
+   *           type: string
+   *           format: email
+   *           default: ""
+   *           description: "Email address of the user"
+   *         password:
+   *           type: string
+   *           format: password
+   *           default: ""
+   *           description: "Password for the user account"
+   *         confirmPassword:
+   *           type: string
+   *           format: password
+   *           default: ""
+   *           description: "Password confirmation"
+   *         duration:
+   *           type: string
+   *           default: ""
+   *           description: "Duration of the internship or program"
+   */
+
   firstName: {
     type: String,
     required: [true, "Firstname is required"],
@@ -75,6 +74,10 @@ const signUpSchema = mongoose.Schema({
     type: String,
     required: [true, "Duration is required"],
   },
+  role: {
+    type: String,
+    default: "Intern",
+  },
   token: {
     type: String,
     required: [true, "Token couldnt be generated"],
@@ -91,46 +94,45 @@ const signUpSchema = mongoose.Schema({
 
 const internsModel = new mongoose.model("Intern Model", signUpSchema);
 
-
 const adminSignUpSchema = mongoose.Schema({
   /**
- * @openapi
- * components:
- *   schemas:
- *     AdminSignUpInput:
- *       type: object
- *       required:
- *         - firstName
- *         - lastName
- *         - email
- *         - password
- *         - confirmPassword
- *       properties:
- *         firstName:
- *           type: string
- *           default: ""
- *           description: "First name of the user"
- *         lastName:
- *           type: string
- *           default: ""
- *           description: "Last name of the user"
- *         email:
- *           type: string
- *           format: email
- *           default: ""
- *           description: "Email address of the user"
- *         password:
- *           type: string
- *           format: password
- *           default: ""
- *           description: "Password for the user account"
- *         confirmPassword:
- *           type: string
- *           format: password
- *           default: ""
- *           description: "Password confirmation"
- *         
- */
+   * @openapi
+   * components:
+   *   schemas:
+   *     AdminSignUpInput:
+   *       type: object
+   *       required:
+   *         - firstName
+   *         - lastName
+   *         - email
+   *         - password
+   *         - confirmPassword
+   *       properties:
+   *         firstName:
+   *           type: string
+   *           default: ""
+   *           description: "First name of the user"
+   *         lastName:
+   *           type: string
+   *           default: ""
+   *           description: "Last name of the user"
+   *         email:
+   *           type: string
+   *           format: email
+   *           default: ""
+   *           description: "Email address of the user"
+   *         password:
+   *           type: string
+   *           format: password
+   *           default: ""
+   *           description: "Password for the user account"
+   *         confirmPassword:
+   *           type: string
+   *           format: password
+   *           default: ""
+   *           description: "Password confirmation"
+   *
+   */
 
   firstName: {
     type: String,
@@ -147,6 +149,10 @@ const adminSignUpSchema = mongoose.Schema({
   password: {
     type: String,
     required: [true, "Password is required"],
+  },
+  role: {
+    type: String,
+    default: "Admin",
   },
   token: {
     type: String,
@@ -165,35 +171,35 @@ const adminSignUpSchema = mongoose.Schema({
 const adminModel = new mongoose.model("Admin Model", adminSignUpSchema);
 
 const reportSchema = mongoose.Schema({
-/**
- * @openapi
- * components:
- *   schemas:
- *     ReportInput:
- *       type: object
- *       required:
- *         - day
- *         - taskTitle
- *         - taskDescription
- *         - date
- *       properties:
- *         day:
- *           type: string
- *           default: ""
- *           description: "The day of the documentation upload"
- *         taskTitle:
- *           type: string
- *           default: ""
- *           description: "The title of the task being documented"
- *         taskDescription:
- *           type: string
- *           default: ""
- *           description: "The description of the task being documented"
- *         date:
- *           type: date
- *           default: ""
- *           description: "Date of documentation"
- */
+  /**
+   * @openapi
+   * components:
+   *   schemas:
+   *     ReportInput:
+   *       type: object
+   *       required:
+   *         - day
+   *         - taskTitle
+   *         - taskDescription
+   *         - date
+   *       properties:
+   *         day:
+   *           type: string
+   *           default: ""
+   *           description: "The day of the documentation upload"
+   *         taskTitle:
+   *           type: string
+   *           default: ""
+   *           description: "The title of the task being documented"
+   *         taskDescription:
+   *           type: string
+   *           default: ""
+   *           description: "The description of the task being documented"
+   *         date:
+   *           type: date
+   *           default: ""
+   *           description: "Date of documentation"
+   */
 
   email: {
     type: String,

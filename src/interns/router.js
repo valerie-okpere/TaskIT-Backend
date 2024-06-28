@@ -4,6 +4,7 @@ const {
   handleResponse,
   searchIntern,
   searchAdmin,
+  validateToken,
 } = require("../utils/helperFunctions");
 
 const {
@@ -27,10 +28,16 @@ const {
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const router = Router();
+const cors = require("cors");
 
 router.use(express.json());
 router.use(cookieParser());
 router.use(bodyParser.urlencoded({ extended: true }));
+router.use(
+  cors({
+    origin: "http://localhost:5173",
+  })
+);
 
 router.post("/login", async (req, res) => {
   /**
@@ -57,7 +64,7 @@ router.post("/login", async (req, res) => {
    *               password:
    *                type: string
    *                default: ""
-   *                description: "the password of the user"     
+   *                description: "the password of the user"
    *     responses:
    *       '200':
    *         description: Access confirmed
@@ -65,7 +72,7 @@ router.post("/login", async (req, res) => {
    *         description: Bad request
    *       '409':
    *         description: Conflict
-   * 
+   *
    */
   const { email } = req.body;
   req.sessionStore.get(req.session.id, (err, sessionData) => {
@@ -91,7 +98,6 @@ router.post("/login", async (req, res) => {
 });
 
 router.post("/signup", async (req, res) => {
- 
   /**
    * @openapi
    * /signup:
@@ -115,37 +121,36 @@ router.post("/signup", async (req, res) => {
    */
   await internSignup(req, res);
 });
-   
-router.get("/home", async (req, res) => {
+
+router.get("/home", validateToken, async (req, res) => {
   /**
- * @openapi
- * info:
- *   title: Interns API
- *   version: 1.0.0
- * paths:
- *   /home:
- *     get:
- *       tags:
- *         - Interns
- *       description: App home page
- *       responses:
- *         '200':
- *           description: Successful
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/ReportInput'
- *         '400':
- *           description: Bad request
- * 
- */
+   * @openapi
+   * paths:
+   *   /home:
+   *     get:
+   *       tags:
+   *         - Interns
+   *       description: App home page
+   *       responses:
+   *         '200':
+   *           description: Success
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 allOf:
+   *                   - $ref: '#/components/schemas/SignUpInput'
+   *                   - $ref: '#/components/schemas/ReportInput'
+   *         '400':
+   *           description: Bad request
+   *
+   */
 
   req.body.email = req.session.email;
   req.body.foundIntern = req.session.foundIntern;
   await internHomePage(req, res);
 });
 
-router.get("/profile", async (req, res) => {
+router.get("/profile", validateToken, async (req, res) => {
   /**
    * @openapi
    * /profile:
@@ -164,66 +169,66 @@ router.get("/profile", async (req, res) => {
   await internProfile(req, res);
 });
 
-router.post("/report", async (req, res) => {
-/**
- * @openapi
- * /report:
- *   post:
- *     tags:
- *       - Interns
- *     description: This is to create users' report
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ReportInput'
- *     responses:
- *       '200':
- *         description: Upload successful
- *       '409':
- *         description: Conflict
- *       '400':
- *         description: Bad request
- */
+router.post("/report", validateToken, async (req, res) => {
+  /**
+   * @openapi
+   * /report:
+   *   post:
+   *     tags:
+   *       - Interns
+   *     description: This is to create users' report
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ReportInput'
+   *     responses:
+   *       '200':
+   *         description: Upload successful
+   *       '409':
+   *         description: Conflict
+   *       '400':
+   *         description: Bad request
+   */
   req.body.email = req.session.email;
   req.body.foundIntern = req.session.foundIntern;
   await internReportUpload(req, res);
 });
 
-router.get("/preview", async (req, res) => {
- /**
- * @openapi
- * paths:
- *   /preview:
- *     get:
- *       tags:
- *         - Interns
- *       description: This is to preview recent upload
- *       requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ReportInput'
- *       responses:
- *         '200':
- *           description: Successful
- *           content:
- *             application/json:
- *               schema:
- *                 $ref: '#/components/schemas/ReportInput'
- *         '400':
- *           description: Bad request
- * 
- */
+router.get("/preview", validateToken, async (req, res) => {
+  /**
+   * @openapi
+   * paths:
+   *   /preview:
+   *     get:
+   *       tags:
+   *         - Interns
+   *       description: This is to preview recent upload
+   *       requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/ReportInput'
+   *       responses:
+   *         '200':
+   *           description: Successful
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/ReportInput'
+   *         '400':
+   *           description: Bad request
+   *
+   */
   req.body.email = req.session.email;
   req.body.foundIntern = req.session.foundIntern;
   await internPreview(req, res);
 });
 
-router.post("/preview/search", async (req, res) => {
-/**
+router.post("/preview/search", validateToken, async (req, res) => {
+  /**
    * @openapi
    * /preview/search:
    *   post:
@@ -257,7 +262,7 @@ router.post("/preview/search", async (req, res) => {
   await internPreviewSearch(req, res);
 });
 
-router.patch("/changePassword", async (req, res) => {
+router.patch("/changePassword", validateToken, async (req, res) => {
   /**
    * @openapi
    * /changePassword:
@@ -283,11 +288,11 @@ router.patch("/changePassword", async (req, res) => {
    *               newPassword:
    *                type: string
    *                default: ""
-   *                description: "new password of the user"     
+   *                description: "new password of the user"
    *               confirmPassword:
    *                type: string
    *                default: ""
-   *                description: "updated password of the user"     
+   *                description: "updated password of the user"
    *     responses:
    *       '200':
    *         description: Successful
@@ -295,7 +300,7 @@ router.patch("/changePassword", async (req, res) => {
    *         description: Bad request
    *       '409':
    *         description: Conflict
-   * 
+   *
    */
   req.body.email = req.session.email;
   req.body.foundIntern = req.session.foundIntern;
@@ -321,26 +326,26 @@ router.get("/logout", async (req, res) => {
 
 // ADMIN
 
-router.post("/admin/signup", async (req, res) => {
+router.post("/admin/signup", validateToken, async (req, res) => {
   await adminSignUp(req, res);
 });
 
-router.get("/admin/home", async (req, res) => {
+router.get("/admin/home", validateToken, async (req, res) => {
   /**
- * @openapi
- * paths:
- *   /admin/home:
- *     get:
- *       tags:
- *         - Admins
- *       description: App admin homepage
- *       responses:
- *         '200':
- *           description: Available intern emails
- *         '400':
- *           description: Bad request
- * 
- */
+   * @openapi
+   * paths:
+   *   /admin/home:
+   *     get:
+   *       tags:
+   *         - Admins
+   *       description: App admin homepage
+   *       responses:
+   *         '200':
+   *           description: Available intern emails
+   *         '400':
+   *           description: Bad request
+   *
+   */
   const foundAdmin = await searchAdmin(req.session.email);
 
   if (!foundAdmin) {
@@ -351,8 +356,7 @@ router.get("/admin/home", async (req, res) => {
   await adminHome(req, res);
 });
 
-
-router.get("/admin/profile", async (req, res) => {
+router.get("/admin/profile", validateToken, async (req, res) => {
   /**
    * @openapi
    * /admin/profile:
@@ -371,7 +375,7 @@ router.get("/admin/profile", async (req, res) => {
    *         description: You have to log in
    */
   const foundAdmin = await searchAdmin(req.session.email);
- 
+
   if (!foundAdmin) {
     req.body.email = "";
     return handleResponse(res, 400, "You dont have access to this page");
@@ -381,7 +385,7 @@ router.get("/admin/profile", async (req, res) => {
   await adminProfile(req, res);
 });
 
-router.post("/admin/home/search", async (req, res) => {
+router.post("/admin/home/search", validateToken, async (req, res) => {
   /**
    * @openapi
    * /admin/home/search:
@@ -410,7 +414,7 @@ router.post("/admin/home/search", async (req, res) => {
    */
 
   const foundAdmin = await searchAdmin(req.session.email);
- 
+
   if (!foundAdmin) {
     req.body.email = "";
     return handleResponse(res, 400, "You dont have access to this page");
@@ -420,7 +424,7 @@ router.post("/admin/home/search", async (req, res) => {
   await adminHomeSearch(req, res);
 });
 
-router.get("/admin/preview", async (req, res) => {
+router.get("/admin/preview", validateToken, async (req, res) => {
   /**
    * @openapi
    * /admin/preview:
@@ -442,8 +446,8 @@ router.get("/admin/preview", async (req, res) => {
   await adminPreview(req, res);
 });
 
-router.get("/admin/preview/search", async (req, res) => {
- /**
+router.get("/admin/preview/search", validateToken, async (req, res) => {
+  /**
    * @openapi
    * /admin/preview/search:
    *   post:
@@ -488,7 +492,7 @@ router.get("/admin/preview/search", async (req, res) => {
   await adminPreviewSearch(req, res);
 });
 
-router.delete("/admin/delete", async (req, res) => {
+router.delete("/admin/delete", validateToken, async (req, res) => {
   /**
    * @openapi
    * /admin/delete:
@@ -500,32 +504,23 @@ router.delete("/admin/delete", async (req, res) => {
    *       '200':
    *         description: Deletion successful
    */
-  
+
   const foundAdmin = await searchAdmin(req.session.email);
- 
+
   if (!foundAdmin) {
     req.body.email = "";
     return handleResponse(res, 400, "You dont have access to this page");
   }
   req.body.email = req.session.email;
   await adminDelete(req, res);
-
 });
 
-
-
-
 router.get("/admin/logout", async (req, res) => {
-
   req.session.email = undefined;
 
   req.session.foundAdmin = undefined;
 
   await internLogout(req, res);
-
 });
-
-
-
 
 module.exports = router;

@@ -7,8 +7,12 @@ const app = express();
 
 app.use(express.json());
 
-const handleResponse = (res, status, data) => {
-  return res.status(status).send({ data });
+const handleResponse = (res, status, data, info) => {
+  if (!info) {
+    return res.status(status).send({ data });
+  } else {
+    return res.status(status).send({ data, info });
+  }
 };
 
 const validateEmail = (email) => {
@@ -50,6 +54,23 @@ const getCurrentDate = () => {
   return `${year}-${month}-${day}`;
 };
 
+const validateToken = (req, res, next) => {
+  const token = req.headers["authorization"];
+  if (!token) {
+    return res.status(403).send({ auth: false, message: "No token provided." });
+  }
+
+  jwt.verify(token, secretKey, (err) => {
+    if (err) {
+      return res
+        .status(500)
+        .send({ auth: false, message: "Failed to authenticate token." });
+    }
+
+    next();
+  });
+};
+
 module.exports = {
   handleResponse: handleResponse,
   validateEmail: validateEmail,
@@ -58,4 +79,5 @@ module.exports = {
   searchIntern: searchIntern,
   searchAdmin: searchAdmin,
   getCurrentDate: getCurrentDate,
+  validateToken: validateToken,
 };
