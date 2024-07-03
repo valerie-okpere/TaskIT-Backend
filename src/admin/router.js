@@ -14,12 +14,12 @@ const {
   adminProfile,
   adminDelete,
   adminHomeSearch,
+  adminLogout,
 } = require("./controller");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const router = Router();
 const cors = require("cors");
-const session = require("express-session");
 
 router.use(express.json());
 router.use(cookieParser());
@@ -179,9 +179,19 @@ router.delete("/delete", adminValidateToken, async (req, res) => {
   await adminDelete(req, res);
 });
 
-router.get("/logout", async (req, res) => {
-  req.session.token = undefined;
-  await internLogout(req, res);
+router.get("/logout", adminValidateToken, async (req, res) => {
+  /**
+   * @openapi
+   * /logout:
+   *   get:
+   *     tags:
+   *       - Interns
+   *     description: This is to log a user out from the account
+   *     responses:
+   *       '200':
+   *         description: Logout successful
+   */
+  await adminLogout(req, res);
 });
 
 module.exports = router;

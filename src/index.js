@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const router = require("../src/router/index");
 
 const { handleResponse } = require("../src/utils/helperFunctions");
-const session = require("express-session");
 const swaggerDocs = require("../src/utils/swagger");
 const cors = require("cors");
 
@@ -15,16 +14,6 @@ const templatePath = path.join(__dirname, "../templates");
 
 app.use(express.json());
 app.use(cookieParser("Logbook Backend"));
-app.use(
-  session({
-    secret: "Valerie Okpere",
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-      maxAge: 60000 * 60 * 24,
-    },
-  })
-);
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -37,7 +26,6 @@ app.set("view engine", "hbs");
 app.set("views", templatePath);
 
 app.get("/", (req, res) => {
-  req.session.visited = true;
   return handleResponse(res, 200, "Backend Running");
 });
 

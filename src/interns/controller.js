@@ -45,8 +45,6 @@ const internLogin = async (req, res) => {
         }
       );
 
-      res.cookie("token", token);
-
       return res
         .status(200)
         .send({ token, message: "Intern login successful" });
@@ -67,8 +65,6 @@ const internLogin = async (req, res) => {
           expiresIn: 86400,
         }
       );
-
-      res.cookie("token", token);
 
       return res.status(200).send({ token, message: "Admin login successful" });
     } else {
@@ -374,9 +370,7 @@ const internChangePassword = async (req, res) => {
 
 const internLogout = async (req, res) => {
   try {
-    const { email, oldPassword, newPassword, confirmPassword } = req.body;
-
-    const foundIntern = await searchIntern(email);
+    const { email, foundIntern } = req.body;
 
     if (!email) {
       return handleResponse(res, 400, "You have to log in");
@@ -385,7 +379,6 @@ const internLogout = async (req, res) => {
     if (!foundIntern) {
       return handleResponse(res, 400, "You dont have access to this page");
     }
-    res.cookie("token", "", { maxAge: 0 });
     return handleResponse(res, 200, "Log out successful");
   } catch (error) {
     console.log(error);

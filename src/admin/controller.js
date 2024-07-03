@@ -100,7 +100,7 @@ const adminPreview = async (req, res) => {
 
 const adminPreviewSearch = async (req, res) => {
   try {
-    const { email, foundAdmin } = req.body;
+    const { email, foundAdmin, search, date } = req.body;
 
     if (!email || !foundAdmin) {
       return handleResponse(res, 400, "You dont have access to this page");
@@ -200,22 +200,16 @@ const adminHomeSearch = async (req, res) => {
 };
 
 const adminLogout = async (req, res) => {
-  const { email, foundAdmin } = req.body;
+  try {
+    const { email, foundAdmin } = req.body;
 
-  if (!email || !foundAdmin) {
-    return handleResponse(res, 400, "You dont have access to this page");
-  }
-
-  req.session.token = null;
-
-  req.session.destroy((err) => {
-    if (err) {
-      return handleResponse(res, 400, "Could not delete");
-    } else {
-      res.clearCookie("connect.sid");
-      return handleResponse(res, 200, "Logged out successfully.");
+    if (!email || !foundAdmin) {
+      return handleResponse(res, 400, "You dont have access to this page");
     }
-  });
+    return handleResponse(res, 200, "Log out successful");
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 module.exports = {

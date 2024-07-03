@@ -60,12 +60,6 @@ const validateToken = (req, res, next) => {
     return res.status(403).send({ auth: false, message: "No token provided." });
   }
 
-  const jwtToken = req.cookies["token"];
-
-  if (!jwtToken) {
-    return handleResponse(res, 400, "You have to log in");
-  }
-
   jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       return res
@@ -83,12 +77,6 @@ const adminValidateToken = (req, res, next) => {
   const token = req.headers["authorization"];
   if (!token) {
     return res.status(403).send({ auth: false, message: "No token provided." });
-  }
-
-  const jwtToken = req.cookies["token"];
-
-  if (!jwtToken) {
-    return handleResponse(res, 400, "You have to log in");
   }
 
   jwt.verify(token, secretKey, (err, decoded) => {
