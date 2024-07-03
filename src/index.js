@@ -3,6 +3,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const router = require("../src/router/index");
+
 const { handleResponse } = require("../src/utils/helperFunctions");
 const session = require("express-session");
 const swaggerDocs = require("../src/utils/swagger");
@@ -27,6 +28,7 @@ app.use(
 app.use(
   cors({
     origin: "http://localhost:5173",
+    credentials: true,
   })
 );
 app.use(router);

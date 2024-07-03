@@ -17,13 +17,6 @@ const {
   internPreviewSearch,
   internChangePassword,
   internLogout,
-  adminSignUp,
-  adminHome,
-  adminPreview,
-  adminPreviewSearch,
-  adminProfile,
-  adminDelete,
-  adminHomeSearch,
 } = require("./controller");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
@@ -74,26 +67,7 @@ router.post("/login", async (req, res) => {
    *         description: Conflict
    *
    */
-  const { email } = req.body;
-  req.sessionStore.get(req.session.id, (err, sessionData) => {
-    if (err) {
-      console.log(err);
-      throw err;
-    }
-  });
-  const foundIntern = await searchIntern(email);
-  const foundAdmin = await searchAdmin(email);
 
-  if (!foundIntern && !foundAdmin) {
-    return handleResponse(res, 400, "User does not exist");
-  }
-  req.session.email = email;
-  req.session.visited = true;
-  if (foundIntern) {
-    req.body.foundIntern = foundIntern;
-  } else if (foundAdmin) {
-    req.body.foundAdmin = foundAdmin;
-  }
   await internLogin(req, res);
 });
 
@@ -142,11 +116,10 @@ router.get("/home", validateToken, async (req, res) => {
    *                   - $ref: '#/components/schemas/ReportInput'
    *         '400':
    *           description: Bad request
+   *         '500':
+   *           description: Token authorization failed
    *
    */
-
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internHomePage(req, res);
 });
 
@@ -163,9 +136,9 @@ router.get("/profile", validateToken, async (req, res) => {
    *         description: Successful
    *       '400':
    *         description: Bad request
+   *       '500':
+   *           description: Token authorization failed
    */
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internProfile(req, res);
 });
 
@@ -191,8 +164,6 @@ router.post("/report", validateToken, async (req, res) => {
    *       '400':
    *         description: Bad request
    */
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internReportUpload(req, res);
 });
 
@@ -222,8 +193,6 @@ router.get("/preview", validateToken, async (req, res) => {
    *           description: Bad request
    *
    */
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internPreview(req, res);
 });
 
@@ -257,8 +226,6 @@ router.post("/preview/search", validateToken, async (req, res) => {
    *       400:
    *         description: 'Bad Request'
    */
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internPreviewSearch(req, res);
 });
 
@@ -302,12 +269,10 @@ router.patch("/changePassword", validateToken, async (req, res) => {
    *         description: Conflict
    *
    */
-  req.body.email = req.session.email;
-  req.body.foundIntern = req.session.foundIntern;
   await internChangePassword(req, res);
 });
 
-router.get("/logout", async (req, res) => {
+router.get("/logout", validateToken, async (req, res) => {
   /**
    * @openapi
    * /logout:
@@ -319,207 +284,6 @@ router.get("/logout", async (req, res) => {
    *       '200':
    *         description: Logout successful
    */
-  req.session.email = undefined;
-  req.session.foundIntern = undefined;
-  await internLogout(req, res);
-});
-
-// ADMIN
-
-router.post("/admin/signup", validateToken, async (req, res) => {
-  await adminSignUp(req, res);
-});
-
-router.get("/admin/home", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * paths:
-   *   /admin/home:
-   *     get:
-   *       tags:
-   *         - Admins
-   *       description: App admin homepage
-   *       responses:
-   *         '200':
-   *           description: Available intern emails
-   *         '400':
-   *           description: Bad request
-   *
-   */
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You don't have access to this page");
-  }
-  req.body.email = req.session.email;
-  await adminHome(req, res);
-});
-
-router.get("/admin/profile", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * /admin/profile:
-   *   get:
-   *     tags:
-   *       - Admins
-   *     summary: Admin Profile
-   *     responses:
-   *       200:
-   *         description: Admin details
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/AdminSignUpInput'
-   *       400:
-   *         description: You have to log in
-   */
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You dont have access to this page");
-  }
-  req.body.foundAdmin = foundAdmin;
-  req.body.email = req.session.email;
-  await adminProfile(req, res);
-});
-
-router.post("/admin/home/search", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * /admin/home/search:
-   *   post:
-   *     tags:
-   *       - Admins
-   *     summary: Admin home search
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             required:
-   *              - email
-   *             properties:
-   *               email:
-   *                 type: string
-   *                 format: email
-   *                 default: ''
-   *     responses:
-   *       200:
-   *         description: 'Intern found or not'
-   *       400:
-   *         description: 'Bad Request '
-   */
-
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You dont have access to this page");
-  }
-  req.body.foundAdmin = foundAdmin;
-  req.body.email = req.session.email;
-  await adminHomeSearch(req, res);
-});
-
-router.get("/admin/preview", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * /admin/preview:
-   *   get:
-   *     tags:
-   *       - Admins
-   *     description: Admin preview page
-   *     responses:
-   *       '200':
-   *         description: Access granted
-   */
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You don't have access to this page");
-  }
-  req.body.email = req.session.email;
-  await adminPreview(req, res);
-});
-
-router.get("/admin/preview/search", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * /admin/preview/search:
-   *   post:
-   *     tags:
-   *       - Interns
-   *     summary: Admin preview search
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             oneOf:
-   *               - required: [ 'email' ]
-   *               - required: [ 'search' ]
-   *               - required: [ 'date' ]
-   *             properties:
-   *               email:
-   *                 type: string
-   *                 format: email
-   *                 default: ''
-   *               search:
-   *                 type: string
-   *                 default: ''
-   *               date:
-   *                 type: string
-   *                 format: date
-   *                 default: ''
-   *     responses:
-   *       200:
-   *         description: 'Report found or not'
-   *       400:
-   *         description: 'Bad Request'
-   */
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You don't have access to this page");
-  }
-  req.body.internEmail = req.body.email;
-  req.body.email = req.session.email;
-  await adminPreviewSearch(req, res);
-});
-
-router.delete("/admin/delete", validateToken, async (req, res) => {
-  /**
-   * @openapi
-   * /admin/delete:
-   *   delete:
-   *     tags:
-   *       - Admins
-   *     description: Admin delete action
-   *     responses:
-   *       '200':
-   *         description: Deletion successful
-   */
-
-  const foundAdmin = await searchAdmin(req.session.email);
-
-  if (!foundAdmin) {
-    req.body.email = "";
-    return handleResponse(res, 400, "You dont have access to this page");
-  }
-  req.body.email = req.session.email;
-  await adminDelete(req, res);
-});
-
-router.get("/admin/logout", async (req, res) => {
-  req.session.email = undefined;
-
-  req.session.foundAdmin = undefined;
-
   await internLogout(req, res);
 });
 

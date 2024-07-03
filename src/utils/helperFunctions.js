@@ -1,8 +1,8 @@
 const express = require("express");
 const brycpt = require("bcryptjs");
 const { internsModel, adminModel } = require("../../src/mongodb");
-
-var Data = {};
+const jwt = require("jsonwebtoken");
+const secretKey = "ValerieOreNkechi";
 const app = express();
 
 app.use(express.json());
@@ -60,14 +60,47 @@ const validateToken = (req, res, next) => {
     return res.status(403).send({ auth: false, message: "No token provided." });
   }
 
-  jwt.verify(token, secretKey, (err) => {
+  const jwtToken = req.cookies["token"];
+
+  if (!jwtToken) {
+    return handleResponse(res, 400, "You have to log in");
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
     if (err) {
       return res
         .status(500)
         .send({ auth: false, message: "Failed to authenticate token." });
+    } else {
+      req.body.email = decoded.email;
+      req.body.foundIntern = decoded.foundIntern;
+      next();
     }
+  });
+};
 
-    next();
+const adminValidateToken = (req, res, next) => {
+  const token = req.headers["authorization"];
+  if (!token) {
+    return res.status(403).send({ auth: false, message: "No token provided." });
+  }
+
+  const jwtToken = req.cookies["token"];
+
+  if (!jwtToken) {
+    return handleResponse(res, 400, "You have to log in");
+  }
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+    if (err) {
+      return res
+        .status(500)
+        .send({ auth: false, message: "Failed to authenticate token." });
+    } else {
+      req.body.email = decoded.email;
+      req.body.foundAdmin = decoded.foundAdmin;
+      next();
+    }
   });
 };
 
@@ -80,4 +113,5 @@ module.exports = {
   searchAdmin: searchAdmin,
   getCurrentDate: getCurrentDate,
   validateToken: validateToken,
+  adminValidateToken: adminValidateToken,
 };
