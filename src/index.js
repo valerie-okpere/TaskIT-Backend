@@ -1,16 +1,14 @@
 const express = require("express");
-const path = require("path");
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const router = require("../src/router/index");
-
 const { handleResponse } = require("../src/utils/helperFunctions");
 const swaggerDocs = require("../src/utils/swagger");
 const cors = require("cors");
+require("dotenv").config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
-const templatePath = path.join(__dirname, "../templates");
 
 app.use(express.json());
 app.use(cookieParser("Logbook Backend"));
@@ -22,8 +20,6 @@ app.use(
 );
 app.use(router);
 app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "hbs");
-app.set("views", templatePath);
 
 app.get("/", (req, res) => {
   return handleResponse(res, 200, "Backend Running");

@@ -64,6 +64,8 @@ const adminSignUp = async (req, res) => {
 
     return handleResponse(res, 200, "Admin sign up successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -80,7 +82,7 @@ const adminHome = async (req, res) => {
     return handleResponse(res, 401, "Currently no Interns");
   }
 
-  return handleResponse(res, 200, foundInterns);
+  return handleResponse(res, 200, foundAdmin, foundInterns);
 };
 
 const adminPreview = async (req, res) => {
@@ -93,9 +95,9 @@ const adminPreview = async (req, res) => {
   const foundReports = await reportModel.find({ date: getCurrentDate() });
 
   if (!foundReports) {
-    return res.status(200).send("Currently no Reports");
+    return handleResponse(res, 200, "Currently no Reports");
   }
-  return res.status(201).send(foundReports);
+  return handleResponse(res, 200, foundReports);
 };
 
 const adminPreviewSearch = async (req, res) => {
@@ -139,6 +141,7 @@ const adminPreviewSearch = async (req, res) => {
 
     return handleResponse(res, 200, query);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -153,6 +156,7 @@ const adminProfile = async (req, res) => {
 
     return handleResponse(res, 200, foundAdmin);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -179,6 +183,7 @@ const adminDelete = async (req, res) => {
 
     return handleResponse(res, 200, "Deleted successfully");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -208,6 +213,7 @@ const adminLogout = async (req, res) => {
     }
     return handleResponse(res, 200, "Log out successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };

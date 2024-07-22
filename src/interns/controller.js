@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const express = require("express");
-const { reportModel, internsModel, adminModel } = require("../mongodb");
+const { reportModel, internsModel } = require("../mongodb");
 const {
   handleResponse,
   validateEmail,
@@ -71,6 +71,7 @@ const internLogin = async (req, res) => {
       return handleResponse(res, 400, "User does not exist");
     }
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -134,6 +135,7 @@ const internSignup = async (req, res) => {
 
     return handleResponse(res, 200, "Signup successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -160,6 +162,7 @@ const internHomePage = async (req, res) => {
 
     return handleResponse(res, 200, foundIntern, foundWeek);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -178,6 +181,7 @@ const internProfile = async (req, res) => {
 
     return handleResponse(res, 200, foundIntern);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -232,6 +236,7 @@ const internReportUpload = async (req, res) => {
 
     return handleResponse(res, 200, "Report Upload Successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -259,6 +264,7 @@ const internPreview = async (req, res) => {
 
     return handleResponse(res, 200, foundReport);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -310,6 +316,7 @@ const internPreviewSearch = async (req, res) => {
 
     return handleResponse(res, 200, query);
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -364,6 +371,7 @@ const internChangePassword = async (req, res) => {
 
     return handleResponse(res, 200, "Password change successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };
@@ -381,6 +389,7 @@ const internLogout = async (req, res) => {
     }
     return handleResponse(res, 200, "Log out successful");
   } catch (error) {
+    handleResponse(res, 406, "Error, check console");
     console.log(error);
   }
 };

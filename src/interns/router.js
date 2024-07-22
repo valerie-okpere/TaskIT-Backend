@@ -1,11 +1,6 @@
 const { Router } = require("express");
 const express = require("express");
-const {
-  handleResponse,
-  searchIntern,
-  searchAdmin,
-  validateToken,
-} = require("../utils/helperFunctions");
+const { validateToken } = require("../utils/helperFunctions");
 
 const {
   internLogin,
@@ -39,29 +34,21 @@ router.post("/login", async (req, res) => {
    * /login:
    *   post:
    *     tags:
-   *       - Interns
+   *       - Login
    *     description: This page is to confirm the user accessing the page
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
-   *             type: object
-   *             required:
-   *              - email
-   *              - password
-   *             properties:
-   *               email:
-   *                type: string
-   *                default: ""
-   *                description: "the email of the user"
-   *               password:
-   *                type: string
-   *                default: ""
-   *                description: "the password of the user"
+   *             $ref: '#/components/schemas/LogInInput'
    *     responses:
    *       '200':
    *         description: Access confirmed
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/LoginSuccessResponse'
    *       '400':
    *         description: Bad request
    *       '409':
@@ -100,27 +87,33 @@ router.post("/signup", async (req, res) => {
 router.get("/home", validateToken, async (req, res) => {
   /**
    * @openapi
-   * paths:
-   *   /home:
-   *     get:
-   *       tags:
-   *         - Interns
-   *       description: App home page
-   *       responses:
-   *         '200':
-   *           description: Success
-   *           content:
-   *             application/json:
-   *               schema:
-   *                 allOf:
-   *                   - $ref: '#/components/schemas/SignUpInput'
-   *                   - $ref: '#/components/schemas/ReportInput'
-   *         '400':
-   *           description: Bad request
-   *         '500':
-   *           description: Token authorization failed
-   *
+   * /home:
+   *   get:
+   *     tags:
+   *       - Interns
+   *     description: App home page
+   *     responses:
+   *       '200':
+   *         description: Success
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 data:
+   *                   $ref: '#/components/schemas/UserInfo'
+   *                 info:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/TaskInfo'
+   *       '400':
+   *         description: Bad request
+   *       '500':
+   *         description: Token authorization failed
    */
+
+  router.get("/home", validateToken, internHomePage);
+
   await internHomePage(req, res);
 });
 
@@ -134,7 +127,14 @@ router.get("/profile", validateToken, async (req, res) => {
    *     description: This is to view the profile information of users
    *     responses:
    *       '200':
-   *         description: Successful
+   *         description: Success
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 data:
+   *                   $ref: '#/components/schemas/UserInfo'
    *       '400':
    *         description: Bad request
    *       '500':
@@ -159,7 +159,7 @@ router.post("/report", validateToken, async (req, res) => {
    *             $ref: '#/components/schemas/ReportInput'
    *     responses:
    *       '200':
-   *         description: Upload successful
+   *         description: Report upload successful
    *       '409':
    *         description: Conflict
    *       '400':
@@ -189,11 +189,12 @@ router.get("/preview", validateToken, async (req, res) => {
    *           content:
    *             application/json:
    *               schema:
-   *                 $ref: '#/components/schemas/ReportInput'
+   *                 $ref: '#/components/schemas/TaskArrayResponse'
    *         '400':
    *           description: Bad request
    *
    */
+
   await internPreview(req, res);
 });
 
@@ -222,11 +223,16 @@ router.post("/preview/search", validateToken, async (req, res) => {
    *                 format: date
    *                 default: ''
    *     responses:
-   *       200:
-   *         description: 'Report found or not'
-   *       400:
+   *       '200':
+   *         description: Successful
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/TaskArrayResponse'
+   *       '400':
    *         description: 'Bad Request'
    */
+
   await internPreviewSearch(req, res);
 });
 
@@ -263,7 +269,7 @@ router.patch("/changePassword", validateToken, async (req, res) => {
    *                description: "updated password of the user"
    *     responses:
    *       '200':
-   *         description: Successful
+   *         description: Password change successful
    *       '400':
    *         description: Bad request
    *       '409':

@@ -1,11 +1,6 @@
 const { Router } = require("express");
 const express = require("express");
-const {
-  handleResponse,
-  searchAdmin,
-  validateToken,
-  adminValidateToken,
-} = require("../utils/helperFunctions");
+const { adminValidateToken } = require("../utils/helperFunctions");
 const {
   adminSignUp,
   adminHome,
@@ -47,6 +42,10 @@ router.get("/home", adminValidateToken, async (req, res) => {
    *       responses:
    *         '200':
    *           description: Available intern objects
+   *           content:
+   *             application/json:
+   *               schema:
+   *                 $ref: '#/components/schemas/AdminHomeResponse'
    *         '400':
    *           description: You dont have access to this page
    *         '401':
@@ -67,11 +66,16 @@ router.get("/preview", adminValidateToken, async (req, res) => {
    *     responses:
    *       '200':
    *         description: Intern reports
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/AdminPreviewResponse'
    *       '201':
    *         description: Currently no reports
    *       '400':
    *         description: You do not have access to this page
    */
+
   await adminPreview(req, res);
 });
 
@@ -89,10 +93,11 @@ router.get("/profile", adminValidateToken, async (req, res) => {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/AdminSignUpInput'
+   *               $ref: '#/components/schemas/AdminProfileDataResponse'
    *       400:
    *         description: You have to log in
    */
+
   await adminProfile(req, res);
 });
 
@@ -126,28 +131,24 @@ router.post("/home/search", adminValidateToken, async (req, res) => {
   await adminHomeSearch(req, res);
 });
 
-router.get("/preview/search", adminValidateToken, async (req, res) => {
+router.post("/preview/search", adminValidateToken, async (req, res) => {
   /**
    * @openapi
    * /admin/preview/search:
    *   post:
    *     tags:
-   *       - Interns
-   *     summary: Admin preview search
+   *       - Admins
+   *     summary: Admin home search
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
    *             oneOf:
-   *               - required: [ 'email' ]
    *               - required: [ 'search' ]
    *               - required: [ 'date' ]
+   *             type: object
    *             properties:
-   *               email:
-   *                 type: string
-   *                 format: email
-   *                 default: ''
    *               search:
    *                 type: string
    *                 default: ''
@@ -157,7 +158,11 @@ router.get("/preview/search", adminValidateToken, async (req, res) => {
    *                 default: ''
    *     responses:
    *       200:
-   *         description: 'Report found or not'
+   *         description: 'Intern found or not'
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/TaskArrayDataResponse'
    *       400:
    *         description: 'Bad Request'
    */
@@ -174,7 +179,7 @@ router.delete("/delete", adminValidateToken, async (req, res) => {
    *     description: Admin delete action
    *     responses:
    *       '200':
-   *         description: Deletion successful
+   *         description: Intern successfully deleted
    */
   await adminDelete(req, res);
 });
